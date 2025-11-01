@@ -1,0 +1,67 @@
+# Nova Agent - Northflank Deployment Configuration
+# This file defines how to build and deploy the application on Northflank
+# Service definition for Nova Agent
+services:
+# Main Nova Agent Service
+- name: nova-agent
+source:
+type: GitHub
+repository: your-username/nova-agent  # Replace with your repository
+branch: main
+# Build settings
+build:
+type: Dockerfile
+dockerfile_path: Dockerfile
+context: .
+# Runtime settings  
+run:
+type: web
+port: 7860
+instances: 1
+plan: Sandbox  # Free tier
+health_check:
+enabled: true
+path: /
+interval: 30
+timeout: 5
+retries: 3
+# Environment variables
+env_vars:
+- key: PYTHONUNBUFFERED
+value: "1"
+- key: PYTHONDONTWRITEBYTECODE  
+value: "1"
+- key: PLAYWRIGHT_BROWSERS_PATH
+value: "/ms-playwright"
+# Add your environment variables here (will be configured via Northflank UI)
+# - key: GROQ_API_KEY
+#   value: your-groq-api-key-here
+# Auto-deploy settings
+deployment:
+strategy: rolling
+auto_deploy: true
+# Optional: Addon configuration for persistent storage
+addons:
+- name: nova-agent-storage
+type: persistent-volume
+plan: free
+config:
+size: "2Gi"
+mount_path: "/tmp/data"
+read_only: false
+# Cron jobs for maintenance tasks (optional)
+cron_jobs:
+# Cleanup old screenshots
+- name: cleanup-screenshots
+image: alpine:latest
+command: ["/bin/sh", "-c", "find /tmp -name 'screenshot_*.png' -mtime +1 -delete"]
+schedule: "0 2 * * *"  # Run daily at 2 AM
+env_vars:
+- key: TZ
+value: "UTC"
+# Domains and networking (optional)
+domains:
+# Custom domain for production
+- name: nova-agent
+service: nova-agent
+path: /
