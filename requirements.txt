@@ -1,0 +1,38 @@
+# Nova Agent - Requirements for Northflank Deployment
+# Browser Automation + AI Vision + Gradio UI
+# Web Browser Automation
+playwright>=1.40.0
+pyppeteer>=2.0.4
+# AI Vision & API
+requests>=2.31.0
+groq>=0.4.0
+# Web UI Framework
+gradio>=4.0.0
+fastapi>=0.104.0
+uvicorn>=0.24.0
+# Data Processing
+pydantic>=2.5.0
+numpy>=1.24.0
+pillow>=10.0.0
+# Utilities
+python-dateutil>=2.8.0
+python-dotenv>=1.0.0
+httpx>=0.25.0
+# System Dependencies (will be installed via Dockerfile)
+# - chromium-browser (via playwright install)
+# - ca-certificates
+# - fonts-liberation
+# - libasound2
+# - libatk-bridge2.0-0
+# - libdrm2
+# - libgtk-3-0
+# - libnspr4
+# - libnss3
+# - libxcomposite1
+# - libxdamage1
+# - libxrandr2
+# - libxss1
+# - libxtst6
+# - xdg-utils
+# - libu2f-udev
+# - libvulkan1
