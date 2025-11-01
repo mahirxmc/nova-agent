@@ -1,0 +1,121 @@
+# Nova Agent - Northflank Deployment Configuration
+# Optimized for always-on free tier with 2 services
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nova-agent
+  labels:
+    app: nova-agent
+    platform: northflank
+    tier: free
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nova-agent
+  template:
+    metadata:
+      labels:
+        app: nova-agent
+    spec:
+      containers:
+      - name: nova-agent
+        image: local
+        ports:
+        - containerPort: 7860
+          name: http
+        env:
+        - name: PORT
+          value: "7860"
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        - name: PYTHONDONTWRITEBYTECODE
+          value: "1"
+        - name: PLAYWRIGHT_BROWSERS_PATH
+          value: "/ms-playwright"
+        - name: GROQ_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: nova-secrets
+              key: groq-api-key
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 7860
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 7860
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: temp-storage
+          mountPath: /tmp
+      volumes:
+      - name: temp-storage
+        emptyDir: {}
+
+---
+# Northflank Service Configuration
+apiVersion: v1
+kind: Service
+metadata:
+  name: nova-agent-service
+  labels:
+    app: nova-agent
+spec:
+  selector:
+    app: nova-agent
+  ports:
+  - protocol: TCP
+    port: 7860
+    targetPort: 7860
+  type: ClusterIP
+
+---
+# Northflank Ingress Configuration
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nova-agent-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  rules:
+  - host: nova-agent.northflank.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nova-agent-service
+            port:
+              number: 7860
+
+---
+# Secret Configuration (for environment variables)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nova-secrets
+  labels:
+    app: nova-agent
+type: Opaque
+data:
+  groq-api-key: # This will be set during deployment
