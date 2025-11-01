@@ -1,0 +1,29 @@
+# Nova Agent - Docker Compose for Local Development
+# Use this to test Nova Agent locally before deploying to Northflank
+
+version: '3.8'
+
+services:
+  nova-agent:
+    build: .
+    ports:
+      - "7860:7860"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY:-your-groq-api-key-here}
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+    volumes:
+      - ./screenshots:/tmp/screenshots
+      - ./data:/tmp/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7860/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  screenshots:
+  data:
