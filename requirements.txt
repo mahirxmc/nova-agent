@@ -1,104 +1,19 @@
-# Nova Agent - Python Dependencies
-# Browser Automation and AI Vision Platform
+# Nova Agent Requirements - Optimized for Back4app
+# Browser Automation + AI Vision + Gradio UI
 
-# Core web framework
-gradio>=4.0.0
-
-# Browser automation
+# Web Browser Automation
 playwright>=1.40.0
 
-# HTTP client for AI API
+# AI Vision & API
 requests>=2.31.0
 
-# Data validation and parsing
+# Web UI Framework  
+gradio>=4.0.0
+
+# Data Processing & Validation
 pydantic>=2.5.0
+pillow>=10.0.0
 
-# Async support
-asyncio-mqtt>=0.16.1
-
-# Image processing (optional)
-Pillow>=10.0.0
-
-# Environment management
-python-dotenv>=1.0.0
-
-# Logging and monitoring
-structlog>=23.1.0
-
-# Date/time utilities
+# Utilities
 python-dateutil>=2.8.0
-
-# URL parsing and validation
-urllib3>=2.0.0
-
-# Base64 encoding for images
-base64
-
-# UUID generation
-uuid
-
-# JSON handling
-json
-
-# Temporary file management
-tempfile
-
-# OS utilities
-os
-
-# Logging
-logging
-
-# System utilities
-sys
-
-# File operations
-shutil
-
-# Mathematical utilities
-math
-
-# Regular expressions
-re
-
-# Threading support
-threading
-
-# Concurrent futures
-concurrent.futures
-
-# Time utilities
-time
-
-# Process management
-subprocess
-
-# Configuration parsing
-configparser
-
-# WebSocket support (future enhancement)
-websockets>=11.0
-
-# Rate limiting
-ratelimit>=2.2.1
-
-# Session management
-redis>=4.6.0
-
-# Caching
-cachetools>=5.3.0
-
-# API documentation
-fastapi>=0.104.0
-
-# Database support (future)
-sqlalchemy>=2.0.0
-
-# Authentication (future)
-cryptography>=41.0.0
-
-# Monitoring and metrics
-prometheus-client>=0.17.0
-
-# Error tracking
-sentry-sdk>=1.38.0
+python-dotenv>=1.0.0
