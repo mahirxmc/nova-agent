@@ -1,28 +1,18 @@
-# Nova Agent - Docker Container Configuration
-# Optimized for Northflank deployment and always-on free tier
-
-# Use Python 3.11 slim image for better performance
+# Nova Agent Dockerfile - Fixed for Back4app
 FROM python:3.11-slim
 
-# Set environment variables
+# Set environment variables for optimized performance
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
-ENV PORT=7860
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Set working directory
-WORKDIR /app
-
-# Install system dependencies for Playwright
+# Install system dependencies for Playwright and browser automation
 RUN apt-get update && apt-get install -y \
-    wget \
-    gnupg \
+    # Essential packages for browser automation
     ca-certificates \
     fonts-liberation \
     libasound2 \
     libatk-bridge2.0-0 \
-    libatk1.0-0 \
-    libcups2 \
     libdrm2 \
     libgtk-3-0 \
     libnspr4 \
@@ -37,46 +27,47 @@ RUN apt-get update && apt-get install -y \
     libu2f-udev \
     libvulkan1 \
     libglib2.0-0 \
-    libnss3-dev \
-    libxss-dev \
-    libappindicator3-1 \
-    libsecret-1-0 \
-    libnotify4 \
-    gconf-service \
-    libasound2-plugins \
-    libatk-adaptor \
-    libgbm1 \
+    # Additional utilities
+    wget \
+    gnupg \
+    curl \
+    git \
+    # Clean up
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Playwright browsers
-RUN playwright install chromium
-RUN playwright install-deps chromium
+# Set working directory
+WORKDIR /app
 
 # Copy requirements first for better caching
 COPY requirements.txt .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Copy application files
-COPY main.py .
+# Install Playwright browsers
+RUN playwright install chromium && \
+    playwright install-deps chromium
 
-# Create necessary directories
-RUN mkdir -p /tmp/screenshots /tmp/data /tmp/logs
+# Copy application code
+COPY . .
 
-# Set proper permissions
-RUN chmod +x main.py
+# Create directories for screenshots and temporary files
+RUN mkdir -p /tmp/screenshots /tmp/data && \
+    chmod 755 /tmp/screenshots /tmp/data
 
-# Expose port
-EXPOSE $PORT
+# Set environment variables for the application
+ENV PORT=7860
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+ENV PYTHONPATH=/app
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:$PORT/health || exit 1
+# Expose the port
+EXPOSE 7860
 
-# Set user for security
-RUN useradd -m -u 1000 nova && chown -R nova:nova /app
-USER nova
+# Health check to ensure the application is running
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
 
 # Start the application
 CMD ["python", "main.py"]
