@@ -67,7 +67,7 @@ EXPOSE 7860
 
 # Health check to ensure the application is running
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+    CMD curl -f http://localhost:7860/ || exit 1
 
 # Start the application
 CMD ["python", "main.py"]
