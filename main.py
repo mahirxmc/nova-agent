@@ -59,7 +59,7 @@ class GroqVisionClient:
             
             # Groq API request
             payload = {
-                "model": "llama-3.2-90b-vision-preview",
+                "model": "llama-4-maverick",
                 "messages": [
                     {
                         "role": "user",
